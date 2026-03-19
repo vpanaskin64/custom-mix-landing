@@ -789,7 +789,6 @@ html,body{ height:100%; background:#ccc; font-family:var(--font); -webkit-font-s
   display:flex; flex-direction:column;
   transform:translateY(0);
 }
-
 /* header */
 .wi-header{
   display:flex; align-items:center; justify-content:space-between;
@@ -798,49 +797,41 @@ html,body{ height:100%; background:#ccc; font-family:var(--font); -webkit-font-s
 }
 .wi-title{ font-size:16px; font-weight:700; color:var(--black); text-transform:uppercase; letter-spacing:.04em; }
 .wi-close{ cursor:pointer; display:flex; align-items:center; justify-content:center; }
-
-/* tabs */
-.wi-tabs{
-  display:flex; background:var(--black);
-  padding:5px 8px 0; gap:0; flex-shrink:0;
-}
-.wi-tab{
-  height:45px; min-width:110px; padding:0 15px;
-  display:flex; align-items:center; justify-content:center;
-  font-size:14px; color:white; cursor:pointer;
-  border-right:1px solid var(--gray-200);
-}
-.wi-tab.active{
-  background:white; color:var(--black);
-}
-
-/* body */
+/* scrollable body */
 .wi-body{
+  flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch;
   display:flex; flex-direction:column; align-items:center;
-  padding:24px 24px 36px; gap:16px;
+  padding:12px 16px 36px; gap:32px;
 }
+.wi-body::-webkit-scrollbar{ display:none; }
+/* image + dots */
 .wi-img-wrap{
   width:180px; height:180px;
   display:flex; align-items:center; justify-content:center;
   font-size:96px;
 }
+.wi-img-section{ display:flex; flex-direction:column; align-items:center; gap:16px; }
 .wi-dots{ display:flex; gap:17px; align-items:center; }
-.wi-dot{
-  width:10px; height:10px; border-radius:50%;
-  background:var(--gray-200);
-}
+.wi-dot{ width:10px; height:10px; border-radius:50%; background:var(--gray-200); }
 .wi-dot.active{ background:var(--black); }
-.wi-desc{
-  font-size:14px; color:var(--black); line-height:20px;
-  text-align:center;
+/* info list */
+.wi-list{ display:flex; flex-direction:column; gap:24px; width:100%; }
+.wi-item{ display:flex; flex-direction:column; gap:12px; }
+.wi-item-label{ font-size:14px; font-weight:700; color:var(--black); line-height:20px; }
+.wi-item-text{ font-size:14px; color:var(--black); line-height:20px; }
+/* sticky add btn */
+.wi-footer{
+  flex-shrink:0; background:var(--gray-50);
+  border-top:1px solid var(--gray-100); padding:12px;
 }
-.wi-divider{ width:100%; height:1px; background:var(--gray-200); }
 .wi-add-btn{
-  width:240px; height:50px;
+  width:100%; height:40px;
   background:var(--black); color:white;
   font-size:16px; font-weight:700; letter-spacing:.04em;
   text-transform:uppercase; border:none; cursor:pointer;
+  transition:opacity var(--t);
 }
+.wi-add-btn:active{ opacity:.8; }
 .wi-add-btn.added{
   background:var(--gray-200); color:var(--text-3); cursor:default;
 }
@@ -1563,22 +1554,36 @@ html,body{ height:100%; background:#ccc; font-family:var(--font); -webkit-font-s
           </svg>
         </div>
       </div>
-      <div class="wi-tabs">
-        <div class="wi-tab active" id="wi-tab-details" onclick="switchWiTab('details')">Details</div>
-        <div class="wi-tab" id="wi-tab-ingredients" onclick="switchWiTab('ingredients')">Ingredients</div>
-      </div>
       <div class="wi-body">
-        <div class="wi-img-wrap">
-          <div class="wi-img-emoji" id="wi-emoji">🍓</div>
+        <!-- image + dots -->
+        <div class="wi-img-section">
+          <div class="wi-img-wrap">
+            <div class="wi-img-emoji" id="wi-emoji">🍓</div>
+          </div>
+          <div class="wi-dots">
+            <div class="wi-dot active"></div>
+            <div class="wi-dot"></div>
+            <div class="wi-dot"></div>
+            <div class="wi-dot"></div>
+          </div>
         </div>
-        <div class="wi-dots">
-          <div class="wi-dot active"></div>
-          <div class="wi-dot"></div>
-          <div class="wi-dot"></div>
-          <div class="wi-dot"></div>
+        <!-- info list -->
+        <div class="wi-list" id="wi-list">
+          <div class="wi-item">
+            <div class="wi-item-label" id="wi-name"></div>
+            <div class="wi-item-text" id="wi-desc"></div>
+          </div>
+          <div class="wi-item">
+            <div class="wi-item-label">Ingredients</div>
+            <div class="wi-item-text" id="wi-ingredients"></div>
+          </div>
+          <div class="wi-item">
+            <div class="wi-item-label">Allergens</div>
+            <div class="wi-item-text" id="wi-allergens"></div>
+          </div>
         </div>
-        <div class="wi-desc" id="wi-desc">A creamy strawberry truffle center dipped in rich milk chocolate.</div>
-        <div class="wi-divider"></div>
+      </div>
+      <div class="wi-footer">
         <button class="wi-add-btn" id="wi-add-btn" onclick="addFromModal()">ADD TO BOX</button>
       </div>
     </div>
@@ -2417,33 +2422,40 @@ document.addEventListener('click', e => {
 render();
 // Onboarding is shown when user clicks Get Started from the landing screen
 const WI_DATA = {
-  0: {desc:"A creamy strawberry truffle center dipped in rich milk chocolate.", ingredients:"Sugar, Cream, Milk Chocolate, Strawberry Puree, Butter, Vanilla."},
-  1: {desc:"A smooth caramel pattie dipped in rich milk chocolate.", ingredients:"Sugar, Cream, Milk Chocolate, Butter, Corn Syrup, Vanilla."},
-  2: {desc:"A dark bordeaux cherry cream center in bittersweet dark chocolate.", ingredients:"Sugar, Cream, Dark Chocolate, Maraschino Cherry, Butter."},
-  3: {desc:"A layer of caramel with a layer of honey marshmallow covered in rich, dark chocolate.", ingredients:"Sugar, Caramel, Honey, Marshmallow, Dark Chocolate, Butter."},
-  4: {desc:"Whole almonds smothered in rich milk chocolate with a sweet coating.", ingredients:"Almonds, Milk Chocolate, Sugar, Cocoa Butter, Vanilla."},
-  5: {desc:"Whole almonds dipped in rich dark chocolate, enrobed in a royal coating.", ingredients:"Almonds, Dark Chocolate, Sugar, Cocoa Butter, Vanilla."},
-  6: {desc:"A buttery maple walnut cream center dipped in milk chocolate.", ingredients:"Sugar, Cream, Walnuts, Maple Syrup, Milk Chocolate, Butter."},
-  7: {desc:"A smooth orange cream center dipped in rich white chocolate.", ingredients:"Sugar, Cream, White Chocolate, Orange Oil, Butter, Vanilla."},
-  8: {desc:"A maraschino cherry surrounded by a sweet fondant, dipped in dark chocolate.", ingredients:"Sugar, Maraschino Cherry, Dark Chocolate, Corn Syrup, Cream."},
-  9: {desc:"Crunchy peanut brittle made with fresh-roasted peanuts and brown sugar.", ingredients:"Peanuts, Sugar, Butter, Corn Syrup, Salt, Baking Soda."},
-  10:{desc:"A classic lollypop in assorted flavors, perfectly swirled.", ingredients:"Sugar, Corn Syrup, Natural Flavors, Citric Acid, Colors."},
-  11:{desc:"A light, fluffy divinity made with whipped egg whites and sugar.", ingredients:"Sugar, Corn Syrup, Egg Whites, Pecans, Vanilla, Salt."}
+  0: {desc:"A creamy strawberry truffle center dipped in rich milk chocolate.", ingredients:"Sugar, Cream, Milk Chocolate, Strawberry Puree, Butter, Vanilla.", allergens:"Milk, Soy"},
+  1: {desc:"A smooth caramel pattie dipped in rich milk chocolate.", ingredients:"Sugar, Cream, Milk Chocolate, Butter, Corn Syrup, Vanilla.", allergens:"Milk, Soy"},
+  2: {desc:"A dark bordeaux cherry cream center in bittersweet dark chocolate.", ingredients:"Sugar, Cream, Dark Chocolate, Maraschino Cherry, Butter.", allergens:"Milk, Soy"},
+  3: {desc:"A layer of caramel with a layer of honey marshmallow covered in rich, dark chocolate.", ingredients:"Sugar, Caramel, Honey, Marshmallow, Dark Chocolate, Butter.", allergens:"Milk, Eggs, Soy, Tree nuts"},
+  4: {desc:"Whole almonds smothered in rich milk chocolate with a sweet coating.", ingredients:"Almonds, Milk Chocolate, Sugar, Cocoa Butter, Vanilla.", allergens:"Milk, Soy, Tree nuts (almonds)"},
+  5: {desc:"Whole almonds dipped in rich dark chocolate, enrobed in a royal coating.", ingredients:"Almonds, Dark Chocolate, Sugar, Cocoa Butter, Vanilla.", allergens:"Milk, Soy, Tree nuts (almonds)"},
+  6: {desc:"A buttery maple walnut cream center dipped in milk chocolate.", ingredients:"Sugar, Cream, Walnuts, Maple Syrup, Milk Chocolate, Butter.", allergens:"Milk, Soy, Tree nuts (walnuts)"},
+  7: {desc:"A smooth orange cream center dipped in rich white chocolate.", ingredients:"Sugar, Cream, White Chocolate, Orange Oil, Butter, Vanilla.", allergens:"Milk, Soy"},
+  8: {desc:"A maraschino cherry surrounded by a sweet fondant, dipped in dark chocolate.", ingredients:"Sugar, Maraschino Cherry, Dark Chocolate, Corn Syrup, Cream.", allergens:"Milk, Soy"},
+  9: {desc:"Crunchy peanut brittle made with fresh-roasted peanuts and brown sugar.", ingredients:"Peanuts, Sugar, Butter, Corn Syrup, Salt, Baking Soda.", allergens:"Peanuts, Milk"},
+  10:{desc:"A classic lollypop in assorted flavors, perfectly swirled.", ingredients:"Sugar, Corn Syrup, Natural Flavors, Citric Acid, Colors.", allergens:"None"},
+  11:{desc:"A light, fluffy divinity made with whipped egg whites and sugar.", ingredients:"Sugar, Corn Syrup, Egg Whites, Pecans, Vanilla, Salt.", allergens:"Eggs, Tree nuts (pecans)"}
 };
 let wiCurrentIdx = null;
 
 function openWhatsInside(idx) {
   wiCurrentIdx = idx;
   const p = PRODUCTS[idx];
-  const d = WI_DATA[idx];
+  const d = WI_DATA[idx] || {};
 
+  // Image
   const wiImgEl = document.getElementById('wi-emoji');
   if (IMG[idx]) {
     wiImgEl.innerHTML = `<img src="${IMG[idx]}" style="width:160px;height:160px;object-fit:contain">`;
   } else {
     wiImgEl.textContent = p.emoji;
   }
-  switchWiTab('details');
+
+  // Populate list fields
+  document.getElementById('wi-name').textContent = p.name;
+  document.getElementById('wi-desc').textContent = d.desc || '';
+  document.getElementById('wi-ingredients').textContent = d.ingredients || '';
+  document.getElementById('wi-allergens').textContent = d.allergens || '';
+
   updateWiAddBtn();
 
   document.getElementById('wi-backdrop').classList.add('open');
@@ -2458,14 +2470,6 @@ function closeWhatsInside() {
   m.classList.remove('open');
   setTimeout(function(){ m.style.display = ''; }, 300);
   wiCurrentIdx = null;
-}
-
-function switchWiTab(tab) {
-  const idx = wiCurrentIdx;
-  const d = WI_DATA[idx] || {};
-  document.getElementById('wi-tab-details').classList.toggle('active', tab === 'details');
-  document.getElementById('wi-tab-ingredients').classList.toggle('active', tab === 'ingredients');
-  document.getElementById('wi-desc').textContent = tab === 'details' ? d.desc : d.ingredients;
 }
 
 function updateWiAddBtn() {
